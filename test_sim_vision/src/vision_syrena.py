@@ -42,21 +42,22 @@ def findColors():
         while img is None:
             print("img None")
         im = img.copy()
-        blur = cv2.blur(im, (5,5))
-        hsv = cv2.cvtColor(blur2, cv2.COLOR_BGR2HSV)
-        orange = cv2.inRange(hsv, lower_orange, upper_orange)
-        opening = cv2.morphologyEx(orange, cv2.MORPH_OPEN, kernel)
-        erosion = cv2.erode(orange, kernel, iterations = 1)
-        dilation = cv2.dilate( orange, kernel, iterations = 1)
-        closing = cv2.morphologyEx(orange, cv2.MORPH_CLOSE, kernel)
+        cv2.imshow('from_cam',img)
+        # blur = cv2.blur(im, (5,5))
+        hsv = cv2.cvtColor(im, cv2.COLOR_BGR2HSV)
+        red = cv2.inRange(hsv, lower_red, upper_red)
+        opening = cv2.morphologyEx(red, cv2.MORPH_OPEN, kernel)
+        erosion = cv2.erode(red, kernel, iterations = 1)
+        dilation = cv2.dilate( red, kernel, iterations = 1)
+        closing = cv2.morphologyEx(red, cv2.MORPH_CLOSE, kernel)
 
-        imgray = cv2.cvtColor(blur,cv2.COLOR_BGR2GRAY)
+        imgray = cv2.cvtColor(hsv,cv2.COLOR_BGR2GRAY)
         ret,thresh = cv2.threshold(closing,127,255,0)
         _ , contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,
                                                         cv2.CHAIN_APPROX_NONE)
         result = cv2.drawContours(im, contours, -1, (0,255,255), 3)
         find_path()
-        cv2.imshow('img',result)
+        cv2.imshow('result',result)
      	cv2.waitKey(30)
 
 def callback(msg):
