@@ -39,7 +39,9 @@ def findColors():
     global contours,img,orange, closing
     kernel = np.ones((5,5),np.uint8)
     maxX = 0
+    maxY = 0
     minX = 1000
+    minY = 1000
     while not rospy.is_shutdown():
         while img is None:
             print("img None")
@@ -60,14 +62,20 @@ def findColors():
         result = cv2.drawContours(im, contours, -1, (0,255,255), 3)
         # find_path()
         cv2.imshow('result',result)
-        y = contours[0][0][0][1]
-        x = contours[0][0][0][0]
+        y = contours[0][0][0][1] - 300
+        x = contours[0][0][0][0] - 400
         if(x < minX):
             minX = x
         if(x > maxX):
             maxX = x
+        if(y < minY):
+            minY = y
+        if(y > maxY):
+            maxY = y
         print('min x: ',minX)
         print('max x: ',maxX)
+        print('min y: ',minY)
+        print('max y: ',maxY)
 
      	cv2.waitKey(30)
 
