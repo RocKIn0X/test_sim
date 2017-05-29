@@ -1,0 +1,4 @@
+std_msgs/String path
+std_msgs/String color
+---
+test_sim_srv_msg/vision_data data
