@@ -7,9 +7,9 @@ from sensor_msgs.msg import CompressedImage
 
 lower_orange = np.array([30,30,152])
 upper_orange = np.array([90,100,255])
-lower_red = np.array([0,0,0])
+lower_red = np.array([0,120,100])
 upper_red = np.array([40,200,255])
-img = None 
+img = None
 contours = None
 orange = None
 closing = None
@@ -24,9 +24,9 @@ def find_path():
         # print("area: ")
         # print(ww)
         # if area <= 20 or area >= 1000 or ww <= 10:
-        #     continue 
+        #     continue
         real_area = cv2.contourArea(c)
-        
+
         if real_area <= 2000 or real_area >= 3000:
             continue
         print(real_area)
@@ -38,6 +38,8 @@ def find_path():
 def findColors():
     global contours,img,orange, closing
     kernel = np.ones((5,5),np.uint8)
+    maxX = 0
+    minX = 1000
     while not rospy.is_shutdown():
         while img is None:
             print("img None")
@@ -52,12 +54,21 @@ def findColors():
         closing = cv2.morphologyEx(red, cv2.MORPH_CLOSE, kernel)
 
         imgray = cv2.cvtColor(hsv,cv2.COLOR_BGR2GRAY)
-        ret,thresh = cv2.threshold(closing,127,255,0)
+        ret,thresh = cv2.threshold(red,127,255,0)
         _ , contours, hierarchy = cv2.findContours(thresh,cv2.RETR_TREE,
                                                         cv2.CHAIN_APPROX_NONE)
         result = cv2.drawContours(im, contours, -1, (0,255,255), 3)
-        find_path()
+        # find_path()
         cv2.imshow('result',result)
+        y = contours[0][0][0][1]
+        x = contours[0][0][0][0]
+        if(x < minX):
+            minX = x
+        if(x > maxX):
+            maxX = x
+        print('min x: ',minX)
+        print('max x: ',maxX)
+
      	cv2.waitKey(30)
 
 def callback(msg):
@@ -70,6 +81,5 @@ def callback(msg):
 if __name__ == '__main__':
     rospy.init_node('syrena_gazebo')
     topic = '/syrena/bottom_cam/image_raw/compressed'
-    rospy.Subscriber(topic, CompressedImage,callback) 
+    rospy.Subscriber(topic, CompressedImage,callback)
     findColors()
-            
