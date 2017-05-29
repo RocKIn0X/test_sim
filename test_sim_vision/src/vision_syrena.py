@@ -62,7 +62,7 @@ def findColors():
         result = cv2.drawContours(im, contours, -1, (0,255,255), 3)
         # find_path()
         cv2.imshow('result',result)
-        y = contours[0][0][0][1] - 300
+        y = 300 - contours[0][0][0][1]
         x = contours[0][0][0][0] - 400
         if(x < minX):
             minX = x
@@ -72,10 +72,19 @@ def findColors():
             minY = y
         if(y > maxY):
             maxY = y
-        print('min x: ',minX)
-        print('max x: ',maxX)
-        print('min y: ',minY)
-        print('max y: ',maxY)
+        # print('min x: ',minX)
+        # print('max x: ',maxX)
+        # print('min y: ',minY)
+        # print('max y: ',maxY)
+        print(contours[0])
+        for c in contours:
+            M = cv2.moments(c)
+            if not M['m00'] == 0.0:
+                cx = float(M['m10']/M['m00']) - 400
+                cy = 300 - float(M['m01']/M['m00'])
+                print('cx: ',cx)
+                print('cy: ',cy)
+        break
 
      	cv2.waitKey(30)
 
