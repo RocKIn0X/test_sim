@@ -87,10 +87,11 @@ def findColors():
             real_area = cv2.contourArea(c)
             ratio_scale = hh/ww
 
-            angle = 90-Oreintation(M)[0]*180/math.pi
+            
             if max < area:
                 max = area
                 ratio_area = real_area/area
+                angle = 90-Oreintation(M)[0]*180/math.pi
                 
 
             # print("Angle: ", angle)
@@ -104,6 +105,7 @@ def findColors():
             # print("real_area", real_area)
         print("maxArea: ",max)
         print("ratio: ",ratio_area)
+        print("Angle: ", angle)
 
      	cv2.waitKey(30)
 
