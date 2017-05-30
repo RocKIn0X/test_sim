@@ -5,12 +5,12 @@ import rospkg
 import rospy
 import math
 from sensor_msgs.msg import CompressedImage
-from test_sim_srv_msg.msg import vision_data
-from test_sim_srv_msg.srv import path_sim
+# from test_sim_srv_msg.msg import vision_data.msg
+# from test_sim_srv_msg.srv import path_sim.srv
 
 lower_orange = np.array([30,30,152])
 upper_orange = np.array([90,100,255])
-lower_red = np.array([0,120,100])
+lower_red = np.array([0,110,100])
 upper_red = np.array([40,200,255])
 img = None
 contours = None
@@ -74,25 +74,36 @@ def findColors():
         result = cv2.drawContours(im, contours, -1, (0,255,255), 3)
         # find_path()
         cv2.imshow('result',result)
+        max = 0
+        
         for c in contours:
+            # print("contour: ",c)
             M = cv2.moments(c)
             rect = (x,y),(ww,hh),angle = cv2.minAreaRect(c)
             area = ww*hh
-            if area <= 10 or ww <= 2 :
+            if area <= 100:
                 continue
+            
             real_area = cv2.contourArea(c)
-            ratio_area = real_area/area
             ratio_scale = hh/ww
 
             angle = 90-Oreintation(M)[0]*180/math.pi
+            if max < area:
+                max = area
+                ratio_area = real_area/area
+                
 
-            print("Angle: ", angle)
-            if not M['m00'] == 0.0:
-                cx = float(M['m10']/M['m00']) - 400
-                cy = 300 - float(M['m01']/M['m00'])
-                print('cx: ',cx)
-                print('cy: ',cy)
-        break
+            # print("Angle: ", angle)
+            # if not M['m00'] == 0.0:
+            #     cx = float(M['m10']/M['m00']) - 400
+            #     cy = 300 - float(M['m01']/M['m00'])
+            #     print('cx: ',cx)
+            #     print('cy: ',cy)
+            # print("contour: ",c)
+            # print('area: ',area)
+            # print("real_area", real_area)
+        print("maxArea: ",max)
+        print("ratio: ",ratio_area)
 
      	cv2.waitKey(30)
 
