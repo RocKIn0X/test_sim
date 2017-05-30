@@ -16,6 +16,17 @@ contours = None
 orange = None
 closing = None
 
+def Oreintation(moment):
+    tmp = pow((moment['mu20'] - moment['mu02']), 2)
+    tmp = math.sqrt(tmp + (4 * pow(moment['mu11'], 2)))
+
+    k = moment['mu02'] - moment['mu20']
+
+    l = 2 * moment['mu11']
+
+    rad_maj = math.atan2(k + tmp, l)
+    rad_min = math.atan2(k - tmp, l)
+    return rad_maj, rad_min
 
 def find_path():
     global contours,img
