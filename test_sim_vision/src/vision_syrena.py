@@ -5,8 +5,8 @@ import rospkg
 import rospy
 import math
 from sensor_msgs.msg import CompressedImage
-# from test_sim_srv_msg.msg import vision_data.msg
-# from test_sim_srv_msg.srv import path_sim.srv
+from test_sim_srv_msg.msg import vision_data
+from test_sim_srv_msg.srv import path_sim
 
 lower_orange = np.array([30,30,152])
 upper_orange = np.array([90,100,255])
@@ -29,36 +29,16 @@ def Oreintation(moment):
     rad_min = math.atan2(k - tmp, l)
     return rad_maj, rad_min
 
-def find_path():
-    global contours,img
-
-    for c in contours:
-        rect = (x,y),(ww,hh),angle = cv2.minAreaRect(c)
-        # print("rect:  ",rect)
-        # area = ww*hh
-        # print("area: ")
-        # print(ww)
-        # if area <= 20 or area >= 1000 or ww <= 10:
-        #     continue
-        real_area = cv2.contourArea(c)
-
-        if real_area <= 2000 or real_area >= 3000:
-            continue
-        print(real_area)
-        box = cv2.boxPoints(rect)
-        box = np.int0(box)
-        cv2.drawContours(img, [box], -1,(0,0,0),1,8)
-
-
 def findColors():
     global contours,img,orange, closing
     kernel = np.ones((5,5),np.uint8)
+    res = vision_data()
 
     while not rospy.is_shutdown():
         while img is None:
             print("img None")
         im = img.copy()
-        cv2.imshow('from_cam',img)
+        # cv2.imshow('from_cam',img)
         # blur = cv2.blur(im, (5,5))
         hsv = cv2.cvtColor(im, cv2.COLOR_BGR2HSV)
         red = cv2.inRange(hsv, lower_red, upper_red)
@@ -73,7 +53,7 @@ def findColors():
                                                         cv2.CHAIN_APPROX_NONE)
         result = cv2.drawContours(im, contours, -1, (0,255,255), 3)
         # find_path()
-        cv2.imshow('result',result)
+        # cv2.imshow('result',result)
         max = 0
         
         for c in contours:
@@ -92,22 +72,29 @@ def findColors():
                 max = area
                 ratio_area = real_area/area
                 angle = 90-Oreintation(M)[0]*180/math.pi
+                cx = float(M['m10']/M['m00']) - 400
+                cy = 300 - float(M['m01']/M['m00'])
                 
 
             # print("Angle: ", angle)
             # if not M['m00'] == 0.0:
-            #     cx = float(M['m10']/M['m00']) - 400
-            #     cy = 300 - float(M['m01']/M['m00'])
+                # cx = float(M['m10']/M['m00']) - 400
+                # cy = 300 - float(M['m01']/M['m00'])
             #     print('cx: ',cx)
             #     print('cy: ',cy)
             # print("contour: ",c)
             # print('area: ',area)
             # print("real_area", real_area)
+        res.x = cx
+        res.y = cy
+        res.area = ratio_area
+        res.angle = angle
+        return res
         print("maxArea: ",max)
         print("ratio: ",ratio_area)
         print("Angle: ", angle)
 
-     	cv2.waitKey(30)
+     	# cv2.waitKey(30)
 
 def callback(msg):
     global img,wait,hsv,orange
