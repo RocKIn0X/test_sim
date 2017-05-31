@@ -29,7 +29,7 @@ def Oreintation(moment):
     rad_min = math.atan2(k - tmp, l)
     return rad_maj, rad_min
 
-def findColors():
+def findPath():
     global contours,img,orange, closing
     kernel = np.ones((5,5),np.uint8)
     res = vision_data()
@@ -102,9 +102,16 @@ def callback(msg):
     arr = np.fromstring(msg.data, np.uint8)
     img = cv2.imdecode(arr, 1)
 
+def mission_callback(msg):
+    if msg.path == 'path':
+        findPath()
+
+    
+
 
 if __name__ == '__main__':
     rospy.init_node('syrena_gazebo')
     topic = '/syrena/bottom_cam/image_raw/compressed'
     rospy.Subscriber(topic, CompressedImage,callback)
-    findColors()
+
+    
