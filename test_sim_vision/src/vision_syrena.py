@@ -113,5 +113,5 @@ if __name__ == '__main__':
     rospy.init_node('syrena_gazebo')
     topic = '/syrena/bottom_cam/image_raw/compressed'
     rospy.Subscriber(topic, CompressedImage,callback)
-
+    rospy.Service('vision',path_sim, mission_callback)
     
