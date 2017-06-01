@@ -34,6 +34,7 @@ def findPath():
     global contours,img,orange, closing
     kernel = np.ones((5,5),np.uint8)
     res = vision_data()
+    angle2 = None
 
     while not rospy.is_shutdown():
         while img is None:
@@ -72,7 +73,7 @@ def findPath():
             if max < area:
                 max = area
                 ratio_area = real_area/area
-                angle = 90-Oreintation(M)[0]*180/math.pi
+                angle2 = 90-Oreintation(M)[0]*180/math.pi
                 if not M['m00'] == 0.0:
                     cx = float(M['m10']/M['m00']) - 400
                     cy = 300 - float(M['m01']/M['m00'])
@@ -101,7 +102,7 @@ def findPath():
         return res
         print("maxArea: ",max)
         print("ratio: ",ratio_area)
-        print("Angle: ", angle)
+        print("Angle: ", angle2)
 
      	# cv2.waitKey(30)
 
