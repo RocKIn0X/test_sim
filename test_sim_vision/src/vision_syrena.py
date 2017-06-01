@@ -62,7 +62,7 @@ def findPath():
             M = cv2.moments(c)
             rect = (x,y),(ww,hh),angle = cv2.minAreaRect(c)
             area = ww*hh
-            if area <= 100:
+            if area <= 1000:
                 continue
             
             real_area = cv2.contourArea(c)
@@ -73,8 +73,9 @@ def findPath():
                 max = area
                 ratio_area = real_area/area
                 angle = 90-Oreintation(M)[0]*180/math.pi
-                cx = float(M['m10']/M['m00']) - 400
-                cy = 300 - float(M['m01']/M['m00'])
+                if not M['m00'] == 0.0:
+                    cx = float(M['m10']/M['m00']) - 400
+                    cy = 300 - float(M['m01']/M['m00'])
                 
 
             # print("Angle: ", angle)
@@ -90,6 +91,9 @@ def findPath():
         res.y = cy
         res.area = ratio_area
         res.angle = angle
+        res.isFound = true
+        if area < 1000:
+            res.isFound = false
         print res.x
         print res.y
         print res.area
