@@ -3,7 +3,9 @@
 import rospy
 import math
 from geometry_msgs.msg import Twist
-from std_msgs.msg import Float64, Bool
+from std_msgs.msg import Float64, Bool, String
+from test_sim_srv_msg.msg import vision_data
+from test_sim_srv_msg.srv import path_sim
 
 class PathSim (object):
 
@@ -11,15 +13,16 @@ class PathSim (object):
         print "Mission : Path"
 
         self.angle = 0
-        self.stopt = True
+        self.data = None
+        #self.stopt = True
+
+        path_srv = 'vision'
+        rospy.wait_for_service (path_srv)
+        self.detect_path = rospy.ServiceProxy (path_srv, path_sim)
 
         rospy.init_node ('test_sim')
         self.command = rospy.Publisher ('/cmd_vel', Twist, queue_size = 10)
         self.turn_yaw_rel = rospy.Publisher('/fix/rel/yaw', Float64, queue_size = 10)
-
-        #path_srv = 'vision_node'
-        #rospy.wait_for_service (path_srv)
-        #self.detect_path = rospy.ServiceProxy (path_srv, vision_srv)
 
     def listToTwist (self, list):
         temp = Twist()
@@ -31,16 +34,16 @@ class PathSim (object):
         temp.angular.z = list[5]
         return temp
 
-    def stop_turn (self):
-        return self.stopt
+    #def stop_turn (self):
+    #    return self.stopt
 
     def turn_yaw_relative (self, degree):
         rad = math.radians (degree)
         rad = Float64(rad)
         self.turn_yaw_rel.publish(rad)
-        while not self.stop_turn():
-            rospy.sleep(0.1)
         print 'turn_yaw_relative'
+
+        rospy.sleep(0.1)
 
     def pub (self, tw):
         for i in xrange(5):
@@ -54,15 +57,47 @@ class PathSim (object):
         self.pub (self.listToTwist([0, 0, 0, 0, 0, 0]))
         rospy.sleep (time)
 
-    def run (self):
-        self.angle = -45
-        print 'Start Sim_path Mission'
+    def is_center (self, data):
+        if 0.3 > data.x > -0.3 and 0.3 > data.y > -0.3:
+            print "center"
+            return True
+        return False
 
-        while (True):
-            self.drive ([1, 0, 0, 0, 0, 0])
+    def run (self):
+        print 'Start Sim_path Mission'
+        
+        path = 'path'
+        color = 'red'
+        # self.drive ([1, 0, 0, 0, 0, 0])
+        # rospy.sleep(11)
+        # self.stop(0.1)
+
+        while not rospy.is_shutdown():
+            try:
+                self.data = self.detect_path(String('path'), String('red'))
+            except rospy.ServiceException as exc:
+                print("Service did not process request: " + str(exc))
+            self.data = self.data.data
+            print self.data.x
+            print self.data.y
+            print self.data.angle
+            self.angle = self.data.angle
+
             self.turn_yaw_relative(self.angle)
-            self.stop (0.5)
+            rospy.sleep(5)
+
+            if self.is_center(self.data):
+                self.drive ([1, 0, 0, 0, 0, 0])
+                rospy.sleep(1)
+            else:
+                self.drive ([-self.data.x, -self.data.y, 0, 0, 0, 0])
+                rospy.sleep(0.5)
+
+            # self.drive ([5, 0, 0, 0, 0, 0])
+            # self.turn_yaw_relative(self.angle)
+            # self.stop (0.1)
 
 if __name__ == '__main__':
     path_sim = PathSim()
-    path_sim.run()
+    #path_sim.run()
+    path_sim.stop(0.1)

@@ -4,6 +4,7 @@ import numpy as np
 import rospkg
 import rospy
 import math
+from std_msgs.msg import Float64, Bool, String
 from sensor_msgs.msg import CompressedImage
 from test_sim_srv_msg.msg import vision_data
 from test_sim_srv_msg.srv import path_sim
@@ -89,6 +90,10 @@ def findPath():
         res.y = cy
         res.area = ratio_area
         res.angle = angle
+        print res.x
+        print res.y
+        print res.area
+        print res.angle
         return res
         print("maxArea: ",max)
         print("ratio: ",ratio_area)
@@ -103,8 +108,8 @@ def callback(msg):
     img = cv2.imdecode(arr, 1)
 
 def mission_callback(msg):
-    if msg.path == 'path':
-        findPath()
+    if msg.path.data == 'path':
+        return findPath()
 
     
 
@@ -114,4 +119,4 @@ if __name__ == '__main__':
     topic = '/syrena/bottom_cam/image_raw/compressed'
     rospy.Subscriber(topic, CompressedImage,callback)
     rospy.Service('vision',path_sim, mission_callback)
-    
+    rospy.spin()
