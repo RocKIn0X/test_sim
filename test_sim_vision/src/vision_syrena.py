@@ -88,8 +88,8 @@ def findPath():
             # print("contour: ",c)
             # print('area: ',area)
             # print("real_area", real_area)
-        res.x = cx
-        res.y = cy
+        res.x = cx/400
+        res.y = cy/300
         res.area = ratio_area
         res.angle = angle2
         res.isFound = true
