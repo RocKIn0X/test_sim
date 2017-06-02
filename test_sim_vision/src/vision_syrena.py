@@ -91,14 +91,14 @@ def findPath():
         res.x = cx
         res.y = cy
         res.area = ratio_area
-        res.angle = angle
+        res.angle = angle2
         res.isFound = true
         if area < 1000:
             res.isFound = false
         print res.x
         print res.y
         print res.area
-        print res.angle
+        print res.angle2
         return res
         print("maxArea: ",max)
         print("ratio: ",ratio_area)
