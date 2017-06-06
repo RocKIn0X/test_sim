@@ -78,16 +78,6 @@ def findPath():
                     cx = float(M['m10']/M['m00']) - 400
                     cy = 300 - float(M['m01']/M['m00'])
                 
-
-            # print("Angle: ", angle)
-            # if not M['m00'] == 0.0:
-                # cx = float(M['m10']/M['m00']) - 400
-                # cy = 300 - float(M['m01']/M['m00'])
-            #     print('cx: ',cx)
-            #     print('cy: ',cy)
-            # print("contour: ",c)
-            # print('area: ',area)
-            # print("real_area", real_area)
         res.x = cx/400
         res.y = cy/300
         res.area = ratio_area
