@@ -73,9 +73,9 @@ class PathSim (object):
         vx = 0
         vy = 0
         
-        # self.drive([1, 0, 0, 0, 0, 0])
-        # rospy.sleep(11)
-        # self.stop(0.2)
+        self.drive([1, 0, 0, 0, 0, 0])
+        rospy.sleep(11)
+        self.stop(0.2)
 
         while not rospy.is_shutdown():
             try:
