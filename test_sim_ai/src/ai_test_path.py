@@ -59,9 +59,9 @@ class PathSim (object):
         self.pub(self.listToTwist([0, 0, 0, 0, 0, 0]))
         rospy.sleep(time)
 
-    def is_center(self, y):
-        if 0.1 > y > -0.1:
-            print "center"
+    def is_center(self, x, y):
+        if 0.2 > x > -0.2 and 0.2 > y > -0.2:
+            print "CENTER"
             return True
         return False
 
@@ -70,36 +70,118 @@ class PathSim (object):
 
         path = 'path'
         color = 'red'
-        #self.drive([1, 0, 0, 0, 0, 0])
-        #rospy.sleep(11)
-        self.stop(0.3)
+        vx = 0
+        vy = 0
+        
+        # self.drive([1, 0, 0, 0, 0, 0])
+        # rospy.sleep(11)
+        # self.stop(0.2)
 
         while not rospy.is_shutdown():
             try:
-                self.data = self.detect_path(String(path), String(color))
-                self.data = self.data.data
-                print ('x: ', self.data.x)
-                print ('y: ', self.data.y)
-                print ('angle: ', self.data.angle)
-                self.angle = self.data.angle
+                px = 0
+                py = 0
+                area = 0
+                angle = 0
+
+                for i in range(5):
+                    self.data = self.detect_path(String(path), String(color))
+                    self.data = self.data.data
+                    px = px + self.data.x
+                    py = py + self.data.y
+                    area = area + self.data.area
+                    angle = angle + self.data.angle
+                    rospy.sleep(0.2)
+
+                px = px / 5
+                py = py / 5
+                area =area / 5
+                angle = angle / 5
+
+                print ('---------------')
+                print ('x: ', px)
+                print ('y: ', py)
+                print ('area: ', area)
+                print ('angle: ', angle)
+
+                if not self.data.isFound:
+                    print 'NOT FOUND PATH'
+
+                    self.drive([0.5, 0, 0, 0, 0, 0])
+                    rospy.sleep(1)
+
+                else:
+                    print 'FOUND PATH'
+
+                    if self.is_center(px, py):
+                        self.stop(0.2)
+                        self.turn_yaw_relative(angle)
+                        rospy.sleep(0.5)
+
+                        print 'FOUND PATH COMPLETE'
+                        break
+                    else:
+                        if px > 0.6:
+                            vx = 0.5
+                        elif px > 0.3:
+                            vx = 0.3
+                        elif px > 0:
+                            vx = 0.1
+                        else:
+                            vx = -0.2
+
+                        if py > 0.6:
+                            vy = 0.5
+                        elif py > 0.3:
+                            vy = 0.3
+                        elif py > 0:
+                            vy = 0.1
+                        else:
+                            vy = -0.2
+
+                        self.drive([-vx, -vy, 0, 0, 0, 0])
+                    rospy.sleep(0.1)
+                    
+                self.stop(0.1)
+
+                # ---- old code ----
+                # self.angle = self.data.angle
                 # rospy.sleep(5)
 
-                if self.is_center(self.data.y):
-                    self.drive([1, 0, 0, 0, 0, 0])
-                    rospy.sleep(1)
-                else:
-                    if (-self.data.y > 0):
-                        print 'GO LEFT'
-                    else:
-                        print 'GO RIGHT'
-                    self.drive([0, -self.data.y, 0, 0, 0, 0])
-                    rospy.sleep(0.5)
+                # if self.is_center(self.data.y):
+                #     if (self.data.x > -0.3):
+                #         self.drive([1, 0, 0, 0, 0, 0])
+                #     elif (self.data.x > -0.6):
+                #         self.drive([0.5, 0, 0, 0, 0, 0])
+                #     else:
+                #         self.stop(0.1)
+                #         print 'FIND PATH COMPLETE'
+                #         break
+                    
+                #     rospy.sleep(1)
+                # else:
+                #     if (-self.data.y > 0):
+                #         print 'GO LEFT'
 
-                self.drive([1, 0, 0, 0, 0, 0])
-                rospy.sleep(0.5)
-                self.stop(0.1)
-                self.turn_yaw_relative(self.angle)
-                rospy.sleep(0.3)
+                #         if (-self.data.y > 0.3):
+                #             self.drive([0, 0.3, 0, 0, 0, 0])
+                #         else:
+                #             self.drive([0, -self.data.y, 0, 0, 0, 0])
+                #     else:
+                #         print 'GO RIGHT'
+
+                #         if (-self.data.y < 0.3):
+                #             self.drive([0, -0.3, 0, 0, 0, 0])
+                #         else:
+                #             self.drive([0, -self.data.y, 0, 0, 0, 0])
+
+                #     rospy.sleep(0.5)
+                
+                # # self.drive([0.3, 0, 0, 0, 0, 0])
+                # # self.stop(0.1)
+                # self.turn_yaw_relative(self.angle)
+                # rospy.sleep(0.3)
+
             except rospy.ServiceException as exc:
                 print("Service did not process request: " + str(exc))
                 break

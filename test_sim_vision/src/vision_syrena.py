@@ -35,6 +35,12 @@ def findPath():
     kernel = np.ones((5,5),np.uint8)
     res = vision_data()
     angle2 = None
+    real_area = 0
+    cx = -999
+    cy = -999
+    ratio_area = -999
+    angle2 = -999
+
 
     while not rospy.is_shutdown():
         while img is None:
@@ -93,12 +99,13 @@ def findPath():
         res.area = ratio_area
         res.angle = angle2
         res.isFound = True
-        if area < 1000:
+        if real_area < 1000:
             res.isFound = False
-        print res.x
-        print res.y
-        print res.area
-        print res.angle
+        print ('x: ', res.x)
+        print ('y: ', res.y)
+        print ('ratio area: ', res.area)
+        print ('angle: ', res.angle)
+        print ('Real area: ', real_area)
         return res
         print("maxArea: ",max)
         print("ratio: ",ratio_area)
