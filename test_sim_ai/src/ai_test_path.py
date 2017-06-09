@@ -13,15 +13,15 @@ class PathSim (object):
     def __init__(self):
         print "Mission : Path"
 
+        rospy.init_node('ai_path')
+
         self.angle = 0
         self.data = None
-        #self.stopt = True
 
         path_srv = 'vision'
         rospy.wait_for_service(path_srv)
         self.detect_path = rospy.ServiceProxy(path_srv, path_sim)
 
-        rospy.init_node('test_sim')
         self.command = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
         self.turn_yaw_rel = rospy.Publisher(
             '/fix/rel/yaw', Float64, queue_size=10)
@@ -35,9 +35,6 @@ class PathSim (object):
         temp.angular.y = list[4]
         temp.angular.z = list[5]
         return temp
-
-    # def stop_turn (self):
-    #    return self.stopt
 
     def turn_yaw_relative(self, degree):
         rad = math.radians(degree)
@@ -84,19 +81,19 @@ class PathSim (object):
                 area = 0
                 angle = 0
 
-                for i in range(5):
+                for i in range(10):
                     self.data = self.detect_path(String(path), String(color))
                     self.data = self.data.data
                     px = px + self.data.x
                     py = py + self.data.y
                     area = area + self.data.area
                     angle = angle + self.data.angle
-                    rospy.sleep(0.2)
+                    rospy.sleep(0.01)
 
-                px = px / 5
-                py = py / 5
-                area =area / 5
-                angle = angle / 5
+                px = px / 10
+                py = py / 10
+                area =area / 10
+                angle = angle / 10
 
                 print ('---------------')
                 print ('x: ', px)
@@ -144,51 +141,9 @@ class PathSim (object):
                     
                 self.stop(0.1)
 
-                # ---- old code ----
-                # self.angle = self.data.angle
-                # rospy.sleep(5)
-
-                # if self.is_center(self.data.y):
-                #     if (self.data.x > -0.3):
-                #         self.drive([1, 0, 0, 0, 0, 0])
-                #     elif (self.data.x > -0.6):
-                #         self.drive([0.5, 0, 0, 0, 0, 0])
-                #     else:
-                #         self.stop(0.1)
-                #         print 'FIND PATH COMPLETE'
-                #         break
-                    
-                #     rospy.sleep(1)
-                # else:
-                #     if (-self.data.y > 0):
-                #         print 'GO LEFT'
-
-                #         if (-self.data.y > 0.3):
-                #             self.drive([0, 0.3, 0, 0, 0, 0])
-                #         else:
-                #             self.drive([0, -self.data.y, 0, 0, 0, 0])
-                #     else:
-                #         print 'GO RIGHT'
-
-                #         if (-self.data.y < 0.3):
-                #             self.drive([0, -0.3, 0, 0, 0, 0])
-                #         else:
-                #             self.drive([0, -self.data.y, 0, 0, 0, 0])
-
-                #     rospy.sleep(0.5)
-                
-                # # self.drive([0.3, 0, 0, 0, 0, 0])
-                # # self.stop(0.1)
-                # self.turn_yaw_relative(self.angle)
-                # rospy.sleep(0.3)
-
             except rospy.ServiceException as exc:
                 print("Service did not process request: " + str(exc))
                 break
-
-            # self.drive ([5, 0, 0, 0, 0, 0])
-            # self.turn_yaw_relative(self.angle)
-            # self.stop (0.1)
 
 
 if __name__ == '__main__':

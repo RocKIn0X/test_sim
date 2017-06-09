@@ -89,7 +89,7 @@ def findPath():
         res.area = ratio_area
         res.angle = angle2
         res.isFound = True
-        if real_area < 1000:
+        if real_area < 400:
             res.isFound = False
         print ('x: ', res.x)
         print ('y: ', res.y)
